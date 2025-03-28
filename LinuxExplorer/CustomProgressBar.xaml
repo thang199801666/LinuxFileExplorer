@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="LinuxExplorer.CustomProgressBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="Auto" Height="Auto">
+    <Grid MinWidth="20">
+        <!-- Background -->
+        <Border CornerRadius="5" Background="#E0E0E0"/>
+
+        <!-- ProgressBar -->
+        <ProgressBar x:Name="ProgressBarControl"
+                     Minimum="0" 
+                     Maximum="100"
+                     Value="{Binding ProgressValue, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                     Foreground="#4CAF50" 
+                     HorizontalAlignment="Stretch" 
+                     Margin="0,0,0,0" 
+                     VerticalAlignment="Stretch" 
+                     Width="Auto"/>
+
+        <!-- Progress Text -->
+        <TextBlock x:Name="ProgressTextBlock"
+                   Text="{Binding ProgressText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                   Foreground="Black"
+                   FontWeight="Bold"
+                   FontSize="12"
+                   HorizontalAlignment="Center" 
+                   Height="Auto" 
+                   Margin="0,0,0,0"/>
+    </Grid>
+</UserControl>

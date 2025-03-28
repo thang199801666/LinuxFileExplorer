@@ -1,0 +1,21 @@
+﻿<Window x:Class="LinuxFileExplorer.GotoPathDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Go to Path" Height="143" Width="346" WindowStartupLocation="CenterOwner">
+    <Grid Margin="10" Loaded="Grid_Loaded">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Enter Path:" Margin="1,1,1,1"/>
+
+        <TextBox x:Name="PathTextBox" Grid.Row="1" MinWidth="300" HorizontalAlignment="Stretch" Height="NaN" VerticalAlignment="Stretch" Width="NaN"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Width="196" VerticalAlignment="Center">
+            <Button Content="OK" Click="OkButton_Click" Width="80" Margin="5"/>
+            <Button Content="Cancel" Click="CancelButton_Click" Width="80" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>

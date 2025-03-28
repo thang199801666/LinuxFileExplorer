@@ -1,0 +1,424 @@
+﻿<UserControl x:Class="LinuxExplorer.Explorer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:LinuxExplorer"
+             mc:Ignorable="d"
+             Loaded="Window_Loaded" Height="Auto" Width="Auto"
+             >
+    <UserControl.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:SizeToStringConverter x:Key="SizeConverter"/>
+
+        <Style x:Key="ScrollBarTrackThumb" TargetType="{x:Type Thumb}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Grid x:Name="Grid">
+                            <Rectangle HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Width="Auto"
+                            Height="Auto"
+                            Fill="Transparent">
+                            </Rectangle>
+                            <Border x:Name="CornerScrollBarRectangle"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            CornerRadius="2"
+                            Width="Auto"
+                            Height="Auto"
+                            Margin="0,1,0,1"
+                            Background="{TemplateBinding Background}">
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Horizontal">
+                                <Setter TargetName="CornerScrollBarRectangle" Property="Width" Value="Auto" />
+                                <Setter TargetName="CornerScrollBarRectangle" Property="Height" Value="6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
+            <Setter Property="Foreground" Value="#858585"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid x:Name="GridRoot" Width="3" Background="{TemplateBinding Background}" Margin="0,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="100*" />
+                                <RowDefinition Height="10" />
+                            </Grid.RowDefinitions>
+                            <Track x:Name="PART_Track" Grid.Row="1" IsDirectionReversed="True" Focusable="False">
+                                <Track.Thumb>
+                                    <Thumb x:Name="Thumb" Background="{TemplateBinding Foreground}" Style="{DynamicResource ScrollBarTrackThumb}" />
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton x:Name="PageUp"
+                                Command="ScrollBar.PageDownCommand"
+                                Opacity="0"
+                                Focusable="False" />
+                                </Track.IncreaseRepeatButton>
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton x:Name="PageDown"
+                                Command="ScrollBar.PageUpCommand"
+                                Opacity="0"
+                                Focusable="False" />
+                                </Track.DecreaseRepeatButton>
+                            </Track>
+                            <Button x:Name="btnPageUp" Grid.Row="0" Margin="-2,0,-2,0" Background="Transparent" BorderThickness="0" Visibility="Hidden" Command="ScrollBar.PageUpCommand">
+                                <Grid>
+                                    <Polygon Points="0.5,6 4.5,0 8.5,6 0,6" Fill="#858585" Stroke="#858585"></Polygon>
+                                </Grid>
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Height" Value="12"/>
+                                                <Setter Property="Width" Value="12"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button x:Name="btnPageDown" Grid.Row="2" Margin="-2,0,-2,0" Background="Transparent" BorderThickness="0" Visibility="Hidden" Command="ScrollBar.PageDownCommand">
+                                <Grid>
+                                    <Polygon Points="0.5,0 4.5,6 8.5,0 0,0" Fill="#858585" Stroke="#858585"></Polygon>
+                                </Grid>
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Height" Value="12"/>
+                                                <Setter Property="Width" Value="12"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="GridRoot" Property="Width" Value="7" />
+                                <Setter TargetName="btnPageUp" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="btnPageDown" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Thumb" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+
+                            <Trigger Property="Orientation" Value="Horizontal">
+                                <Setter TargetName="GridRoot" Property="LayoutTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-90" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="PART_Track" Property="LayoutTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-90" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Width" Value="Auto" />
+                                <Setter Property="Height" Value="7" />
+                                <Setter TargetName="Thumb" Property="Tag" Value="Horizontal" />
+                                <Setter TargetName="Thumb" Property="Margin" Value="0,1,0,0" />
+                                <Setter TargetName="PageDown" Property="Command" Value="ScrollBar.PageLeftCommand" />
+                                <Setter TargetName="PageUp" Property="Command" Value="ScrollBar.PageRightCommand" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RoundedButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="2" BorderBrush="Black">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="DodgerBlue"/>
+                    <Setter Property="Foreground" Value="Red"/>
+                </Trigger>
+                
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="DarkGray"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Key="V" Modifiers="Control" Command="{Binding PasteCommand}"/>
+        <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyCommand}"/>
+        <KeyBinding Key="F8" Command="{Binding ShowHiddenFilesCommand}"/>
+    </UserControl.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24"/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+        <ListView Name="FilesListView" SelectionMode="Extended"
+              AllowDrop="True"
+              Drop="FilesListView_Drop"
+              DragOver="FilesListView_DragOver"
+              PreviewKeyDown="FilesListView_PreviewKeyDown" 
+              Foreground="Black"
+              GridViewColumnHeader.Click="GridViewColumnHeader_Click"
+              ContextMenuOpening="FilesListView_ContextMenuOpening"
+              MouseDoubleClick="FilesListView_MouseDoubleClick" 
+              MouseDown="FilesListView_MouseDown"
+              MouseLeftButtonUp="FilesListView_MouseLeftButtonUp"
+              PreviewMouseLeftButtonDown="FilesListView_PreviewMouseLeftButtonDown"
+              PreviewMouseMove="FilesListView_PreviewMouseMove" 
+              SelectionChanged="FilesListView_SelectionChanged" Grid.Row="1" DragEnter="FilesListView_DragEnter" BorderThickness="0,0,0,0">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="checkItem" Header="Check" Click="Check_Click" IsEnabled="False">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Check_File.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="runItem" Header="Run" IsEnabled="False" Click="Run_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Execute.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Refresh" 
+                      Click="RefreshMenuItem_Click" 
+                      InputGestureText="F5">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Refresh.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="renameItem" Header="Rename" 
+                      Click="RenameMenuItem_Click"
+                      InputGestureText="F2">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Rename.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="copyItem"  Header="Copy" Click="PasteMenuItem_Click" InputGestureText="Ctrl+C">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Copy.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Paste" Click="PasteMenuItem_Click" InputGestureText="Ctrl+V">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Paste.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="downloadItem" Header="Download" 
+                      Click="DownloadMenuItem_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Download.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="New">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/New.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                        <MenuItem Header="File" Click="NewFile_Click">
+                            <MenuItem.Icon>
+                                <Image Source="Icons/File.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Folder" Click="NewFolder_Click">
+                            <MenuItem.Icon>
+                                <Image Source="Icons/Folder.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+
+                    <MenuItem x:Name="deleteItem" Header="Delete" 
+                      Click="DeleteFile_Click"
+                      InputGestureText="Del">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Delete.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <Separator/>
+
+                    <MenuItem Header="Open Temp Folder" Click="OpenTempFolder_Click">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Open_Folder.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="ViewHiddenFile"
+                              Header="Show Hidden Files" 
+                              Click="ToggleHiddenFiles_Click" 
+                              IsCheckable="True"
+                              IsChecked="{Binding ShowHiddenFiles, Mode=TwoWay}"
+                              InputGestureText="F8">
+                        <MenuItem.Icon>
+                            <Image Source="Icons/Show.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                </ContextMenu>
+            </ListView.ContextMenu>
+
+            <ListView.View>
+                <GridView AllowsColumnReorder="False">
+                    <GridViewColumn Header="Name" x:Name="colName" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" ToolTip="{Binding Name}">
+                                    <!-- TextBlock (Shown when NOT editing) -->
+                                    <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,3,0"/>
+                                    <TextBlock Text="{Binding Name}" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                    <TextBox Text="{Binding EditableName, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Center"
+                                     Foreground="Black"
+                                     Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                                     KeyDown="RenameTextBox_KeyDown"
+                                     LostFocus="RenameTextBox_LostFocus"
+                                     Loaded="RenameTextBox_Loaded"
+                                     GotFocus="RenameTextBox_GotFocus"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Type" x:Name="colType" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Type}" HorizontalAlignment="Stretch" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Size" x:Name="colSize" Width="120">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Size, Converter={StaticResource SizeConverter}}" 
+                                       TextAlignment="Right"
+                                       HorizontalAlignment="Right" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Modified" x:Name="colModified" Width="auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Modified, StringFormat='yyyy-MM-dd HH:mm'}" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Permissions" x:Name="colPermissions" Width="auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Permissions}" 
+                             HorizontalAlignment="Center" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Grid Grid.Row="2" RenderTransformOrigin="0.5,0.5" Height="NaN" Width="NaN">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="97"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Selected Item(s): " Padding="5,3,1,1" Height="NaN" Width="NaN"/>
+            <Label Grid.Column="1" x:Name="lbItemselected" Content="0" Padding="0,3,1,1" HorizontalContentAlignment="Right" Height="NaN" Width="NaN"/>
+            <Label x:Name="lbItemTotal" Content="/0" Padding="0,3,1,1" Grid.Column="2" Height="NaN" Width="NaN"/>
+            <local:CustomProgressBar x:Name="processBar" 
+                                     Grid.Column="3" 
+                                     ProgressValue="0" 
+                                     ProgressText="0%" 
+                                     Padding="1,1,1,1" 
+                                     HorizontalAlignment="Stretch" 
+                                     Height="NaN" 
+                                     VerticalAlignment="Stretch" 
+                                     Margin="5,0,0,0" Loaded="FilesListView_Loaded"/>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Margin="1,1,1,1" Style="{DynamicResource RoundedButtonStyle}" ToolTip="Goto Parent Directory" Click="btnGotoParent_Click">
+                <Image Source="Icons/Left_Arrow.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Button>
+            <Button Grid.Column="1" Margin="1,1,1,1" Style="{DynamicResource RoundedButtonStyle}" ToolTip="Goto Previous Directory" Click="btnGotoPrevious_Click">
+                <Image Source="Icons/Right_Arrow.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Button>
+            <Button x:Name="btnRefresh" Grid.Column="2" Margin="1,1,1,1" Style="{DynamicResource RoundedButtonStyle}" Click="btnRefresh_Click" ToolTip="Refresh">
+                <Image Source="Icons/Refresh.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Button>
+            <Button x:Name="btnHome" Grid.Column="3" Margin="1,1,1,1" Style="{DynamicResource RoundedButtonStyle}" Click="btnHome_Click" ToolTip="Goto Home">
+                <Image Source="Icons/Home.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Button>
+
+            <Button x:Name="btnSFTPDir" Grid.Column="4" 
+                    BorderThickness="1,1,1,1" 
+                    Height="NaN" 
+                    Width="NaN" 
+                    Margin="1,1,1,1" 
+                    Click="btnSFTPDirectory_Click" 
+                    Background="#FFDEDEDE">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="DodgerBlue"/>
+                                <Setter Property="Foreground" Value="Red"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
